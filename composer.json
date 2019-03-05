@@ -1,0 +1,19 @@
+{
+    "name": "ewave/devbox-akeneo2-scripts",
+    "description": "Scripts to help setup and install akeneo2 application into developer's containers",
+    "type": "library",
+    "version": "1.0.0",
+    "require": {
+        "symfony/console": "^3.1",
+        "symfony/yaml": "^3.1",
+        "ewave/devbox-core-scripts": "dev-multy"
+    },
+    "autoload": {
+      "files": [ "registration.php" ],
+      "psr-4": {
+        "AkeneoDevBox\\": ""
+      }
+    },
+    "license": "OSL-3.0",
+    "minimum-stability": "beta"
+}
