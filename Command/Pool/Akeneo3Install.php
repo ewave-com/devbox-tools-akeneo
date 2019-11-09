@@ -2,6 +2,7 @@
 
 namespace AkeneoDevBox\Command\Pool;
 
+use AkeneoDevBox\Command\PoolAbstract\AbstractAkeneoInstall;
 use CoreDevBoxScripts\Command\CommandAbstract;
 use CoreDevBoxScripts\Library\Registry;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
@@ -11,28 +12,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Command for Akeneo installation
  */
-class AkeneoInstall extends CommandAbstract
+class Akeneo3Install extends AbstractAkeneoInstall
 {
     /**
      * {@inheritdoc}
      */
     protected function configure()
     {
-        $this->setName('akeneo2:install')
-            ->setDescription(
-                'Install existing akeneo Project : [Code Download]->[DB Download/Install/Configure]->[Configure env.php]->[Akeneo finalisation]'
-            )
-            ->setHelp('[Code Download]->[DB Download/Install/Configure]');
-    }
-
-    /**
-     * Perform delayed configuration
-     *
-     * @return void
-     */
-    public function postConfigure()
-    {
-        parent::configure();
+        $this->setName('akeneo3:install')
+             ->setDescription(
+                 'Install existing akeneo Project : [Code Download]->[DB Download/Install/Configure]->[Configure env.php]->[Akeneo finalisation]'
+             )
+             ->setHelp('[Code Download]->[DB Download/Install/Configure]');
     }
 
     /**
@@ -49,12 +40,12 @@ class AkeneoInstall extends CommandAbstract
                 'core:setup:permissions',
                 'core:setup:code',
                 'core:setup:media',
-                'akeneo2:setup:configs',
+                'akeneo:setup:configs',
                 'core:setup:db',
-                'akeneo2:setup:elastic',
+                'akeneo3:setup:elastic',
                 'core:setup:node-modules',
-                'akeneo2:setup:finalize',
-                'akeneo2:setup:job-daemon',
+                'akeneo:setup:finalize',
+                'akeneo:setup:job-daemon',
                 'core:setup:permissions',
             ],
             $input,

@@ -17,9 +17,9 @@ class AkeneoSetupFinalize extends CommandAbstract
      */
     protected function configure()
     {
-        $this->setName('akeneo2:setup:finalize')
-            ->setDescription('Cache clean, Generate assets, Run webpack')
-            ->setHelp('Cache clean, Generate assets, Run webpack');
+        $this->setName('akeneo:setup:finalize')
+             ->setDescription('Cache clean, Generate assets, Run webpack')
+             ->setHelp('Cache clean, Generate assets, Run webpack');
 
         parent::configure();
     }
@@ -40,7 +40,7 @@ class AkeneoSetupFinalize extends CommandAbstract
         ];
         $io->table($headers, $rows);
 
-        $io->progressStart(2);
+        $io->progressStart(3);
 
         if ($this->requestOption(AkeneoOptions::CLEAR_CACHE, $input, $output)) {
             try {
@@ -62,6 +62,14 @@ class AkeneoSetupFinalize extends CommandAbstract
                     sprintf('cd %s && php bin/console pim:installer:assets -e prod --clean', $projectPath),
                     $output
                 );
+            } catch (\Exception $e) {
+                $io->note($e->getMessage());
+                $io->note('Step skipped.');
+            }
+        }
+
+        if ($this->requestOption(AkeneoOptions::RUN_WEBPACK, $input, $output)) {
+            try {
 
                 $this->executeCommands(
                     sprintf('cd %s && yarn run webpack', $projectPath),
@@ -79,6 +87,7 @@ class AkeneoSetupFinalize extends CommandAbstract
             $io->success('Finalisation steps are passed');
         } else {
             $io->warning('Some issues appeared during finalization steps');
+
             return false;
         }
 
@@ -92,9 +101,9 @@ class AkeneoSetupFinalize extends CommandAbstract
     public function getOptionsConfig()
     {
         return [
-            AkeneoOptions::CLEAR_CACHE => AkeneoOptions::get(AkeneoOptions::CLEAR_CACHE),
+            AkeneoOptions::CLEAR_CACHE    => AkeneoOptions::get(AkeneoOptions::CLEAR_CACHE),
             AkeneoOptions::INSTALL_ASSETS => AkeneoOptions::get(AkeneoOptions::INSTALL_ASSETS),
+            AkeneoOptions::RUN_WEBPACK => AkeneoOptions::get(AkeneoOptions::RUN_WEBPACK),
         ];
     }
-
 }

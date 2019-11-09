@@ -1,9 +1,8 @@
 <?php
 
-namespace AkeneoDevBox\Command\Pool;
+namespace AkeneoDevBox\Command\PoolAbstract;
 
 use AkeneoDevBox\Command\Options\ElasticOptions;
-use AkeneoDevBox\Command\Options\ESOptions;
 use CoreDevBoxScripts\Command\CommandAbstract;
 use CoreDevBoxScripts\Framework\Container;
 use CoreDevBoxScripts\Framework\Downloader\DownloaderFactory;
@@ -16,32 +15,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * Command for Akeneo final steps
  */
-class AkeneoSetupElastic extends CommandAbstract
+abstract class AbstractAkeneoSetupElastic extends CommandAbstract
 {
     const TYPE_MAPPING = 'mapping';
     const TYPE_ANALYZER = 'analyzer';
     const TYPE_DATA = 'data';
 
-    const INDICES = [
-        'akeneo_pim_product',
-        'akeneo_pim_product_proposal',
-        'akeneo_pim_product_model',
-        'akeneo_pim_product_and_product_model',
-    ];
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
-    {
-        $this->setName('akeneo2:setup:elastic')
-            ->setDescription('Update elasticsearch product data')
-            ->setHelp('Update elasticsearch product data');
-
-        $this->questionOnRepeat = 'Try to update Elasticsearch data again?';
-
-        parent::configure();
-    }
+    protected $importedIndices = [];
 
     /**
      * {@inheritdoc}
@@ -54,6 +34,7 @@ class AkeneoSetupElastic extends CommandAbstract
     /**
      * @param InputInterface  $input
      * @param OutputInterface $output
+     *
      * @return $this
      * @throws \Exception
      */
@@ -82,6 +63,13 @@ class AkeneoSetupElastic extends CommandAbstract
         return $this;
     }
 
+    /**
+     * @param SymfonyStyle         $io
+     * @param OutputInterface|null $output
+     *
+     * @return bool
+     * @throws \Exception
+     */
     protected function installElasticsearchDump(SymfonyStyle $io, OutputInterface $output = null)
     {
         $projectPath = EnvConfig::getValue('WEBSITE_DOCUMENT_ROOT');
@@ -150,6 +138,7 @@ class AkeneoSetupElastic extends CommandAbstract
             } catch (\Exception $e) {
                 $io->warning([$e->getMessage()]);
                 $io->warning('Some issues appeared during DB downloading.');
+
                 return false;
             }
         } else {
@@ -160,6 +149,7 @@ class AkeneoSetupElastic extends CommandAbstract
             $dumpJsonPaths = $this->unpackJsonDump($fileFullPath, $output);
         } catch (\Exception $e) {
             $io->note($e->getMessage());
+
             return false;
         }
 
@@ -167,19 +157,20 @@ class AkeneoSetupElastic extends CommandAbstract
         $output->writeln('Indices importing');
 
         $commandTemplatesByType = [
-            self::TYPE_MAPPING => sprintf(
+            static::TYPE_MAPPING  => sprintf(
                 '%s --type=mapping --input="{jsonPath}" --output=http://%s:%s/{indexName} --quiet=true',
                 $elasticdumpBinary,
                 $esHost,
                 $esPort
             ),
-            self::TYPE_ANALYZER => sprintf(
-                '%s --type=analyzer --input="{jsonPath}" --output=http://%s:%s/{indexName} --quiet=true',
-                $elasticdumpBinary,
-                $esHost,
-                $esPort
-            ),
-            self::TYPE_DATA => sprintf(
+//analyzer type import is not required after akeneo reset command executing
+//            static::TYPE_ANALYZER => sprintf(
+//                '%s --type=analyzer --input="{jsonPath}" --output=http://%s:%s/{indexName} --quiet=true',
+//                $elasticdumpBinary,
+//                $esHost,
+//                $esPort
+//            ),
+            static::TYPE_DATA     => sprintf(
                 '%s --type=data --input="{jsonPath}" --output=http://%s:%s/{indexName} --bulk=true --limit=1000 --quiet=true',
                 $elasticdumpBinary,
                 $esHost,
@@ -187,11 +178,13 @@ class AkeneoSetupElastic extends CommandAbstract
             ),
         ];
 
+        $importCommands = [];
         $importCommands[] = sprintf(
             'cd %s && php bin/console akeneo:elasticsearch:reset-indexes --no-interaction --quiet',
             $projectPath
         );
-        foreach (self::INDICES as $indexName) {
+
+        foreach ($this->importedIndices as $indexName) {
             foreach (array_keys($commandTemplatesByType) as $type) {
                 foreach ($dumpJsonPaths as $jsonPath) {
                     if (false !== strpos($jsonPath, $indexName . '_' . $type)) {
@@ -213,7 +206,8 @@ class AkeneoSetupElastic extends CommandAbstract
     /**
      * @param string          $filePath
      * @param OutputInterface $output
-     * @return string
+     *
+     * @return array | false
      */
     public function unpackJsonDump($filePath, $output)
     {
@@ -229,7 +223,7 @@ class AkeneoSetupElastic extends CommandAbstract
 
         $newPath = $filePath;
 
-        if ($path_parts['extension'] == 'gz') {
+        if ($path_parts['extension'] === 'gz') {
             $extractCommand = sprintf('tar -C %s -xf %s', $jsonDir, $filePath);
             $output->writeln('<comment>Unpacking file...</comment>');
             $this->executeCommands(
@@ -243,6 +237,10 @@ class AkeneoSetupElastic extends CommandAbstract
         return glob($jsonDir . DIRECTORY_SEPARATOR . '*.json');
     }
 
+    /**
+     * @param SymfonyStyle         $io
+     * @param OutputInterface|null $output
+     */
     protected function executeElasticsearchReindexCommands(SymfonyStyle $io, OutputInterface $output = null)
     {
         $projectPath = EnvConfig::getValue('WEBSITE_DOCUMENT_ROOT');
@@ -274,9 +272,9 @@ class AkeneoSetupElastic extends CommandAbstract
     {
         return [
             ElasticOptions::INSTALL_FROM_DUMP => ElasticOptions::get(ElasticOptions::INSTALL_FROM_DUMP),
-            ElasticOptions::INDEX_DATA => ElasticOptions::get(ElasticOptions::INDEX_DATA),
-            ElasticOptions::HOST => ElasticOptions::get(ElasticOptions::HOST),
-            ElasticOptions::PORT => ElasticOptions::get(ElasticOptions::PORT),
+            ElasticOptions::INDEX_DATA        => ElasticOptions::get(ElasticOptions::INDEX_DATA),
+            ElasticOptions::HOST              => ElasticOptions::get(ElasticOptions::HOST),
+            ElasticOptions::PORT              => ElasticOptions::get(ElasticOptions::PORT),
         ];
     }
 }

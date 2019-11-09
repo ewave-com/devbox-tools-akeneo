@@ -24,13 +24,13 @@ class AkeneoSetupConfigs extends CommandAbstract
     protected function configure()
     {
         $this->configFile = EnvConfig::getValue('PROJECT_CONFIGURATION_FILE');
-        $this->setName('akeneo2:setup:configs')
-            ->setDescription(
-                'Download Akeneo Configs Files [' . $this->configFile . ' file will be used as configuration]'
-            )
-            ->setHelp(
-                'Download Akeneo Configs Files [' . $this->configFile . ' file will be used as configuration]'
-            );
+        $this->setName('akeneo:setup:configs')
+             ->setDescription(
+                 'Download Akeneo Configs Files [' . $this->configFile . ' file will be used as configuration]'
+             )
+             ->setHelp(
+                 'Download Akeneo Configs Files [' . $this->configFile . ' file will be used as configuration]'
+             );
 
         $this->questionOnRepeat = 'Try to update configs again?';
 
@@ -55,6 +55,7 @@ class AkeneoSetupConfigs extends CommandAbstract
 
         if (!$useExistingSources) {
             $output->writeln('<comment>Skipping this step.</comment>');
+
             return true;
         }
 
@@ -93,9 +94,11 @@ class AkeneoSetupConfigs extends CommandAbstract
 
         if (!isset($e)) {
             $io->success('Configs have been copied');
+
             return true;
         } else {
             $io->warning('Some issues appeared during configs updating');
+
             return false;
         }
     }
