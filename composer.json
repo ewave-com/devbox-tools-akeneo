@@ -1,6 +1,6 @@
 {
-    "name": "ewave/devbox-akeneo2-scripts",
-    "description": "Scripts to help setup and install akeneo2 application into developer's containers",
+    "name": "ewave/devbox-akeneo-scripts",
+    "description": "Scripts to help setup and install akeneo application into developer's containers",
     "type": "library",
     "version": "1.0.0",
     "require": {
