@@ -1,6 +1,6 @@
 <?php
 
-namespace AkeneoDevBox\Command\Pool;
+namespace AkeneoDevBox\Command\PoolAbstract;
 
 use CoreDevBoxScripts\Command\CoreActionsAbstract;
 
@@ -9,24 +9,25 @@ use CoreDevBoxScripts\Command\CoreActionsAbstract;
  *
  * @package AkeneoDevBox\Command\Pool
  */
-class AkeneoActions extends CoreActionsAbstract
+abstract class AbstractAkeneoActions extends CoreActionsAbstract
 {
     protected $configFile = '';
 
-    protected $commandCode = 'akeneo2';
-    protected $toolsName = 'Akeneo 2 commands';
-    protected $commandDesc = 'Akeneo 2 commands list';
-    protected $commandHelp = 'This command allows you to execute any of predefined actions to setup website';
+    protected $commandCode;
+    protected $commandNamespace;
+    protected $toolsName;
+    protected $commandDesc;
 
     /**
      * @return array|\Symfony\Component\Console\Command\Command[]
      */
     protected function getApplicationCommands()
     {
-        $coreCommands = $this->getApplication()->all('core');
-        $platformCommands = $this->getApplication()->all('akeneo2');
+        $coreCommands = $this->getCoreCommands();
+        $akeneoCommonCommands = $this->getApplication()->all('akeneo');
+        $akeneoVersionCommands = $this->getApplication()->all($this->commandNamespace);
 
-        return array_merge($coreCommands, $platformCommands);
+        return array_merge($coreCommands, $akeneoCommonCommands, $akeneoVersionCommands);
     }
 
     protected function beforeExecute($input, $output, $io)
