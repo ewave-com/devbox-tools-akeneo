@@ -79,7 +79,7 @@ class AkeneoSetupConfigs extends CommandAbstract
         $mysqlRootPasword = EnvConfig::getValue('CONTAINER_MYSQL_ROOT_PASS');
         $mysqlHost = $projectName . '_' . $mysqlHost;
 
-        $projectPath = EnvConfig::getValue('WEBSITE_DOCUMENT_ROOT');
+        $projectPath = EnvConfig::getValue('WEBSITE_APPLICATION_ROOT') ?: EnvConfig::getValue('WEBSITE_DOCUMENT_ROOT');
         $destinationProjectPath = $projectPath . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'config';
 
         $configPath = sprintf('%s/parameters.yml', $destinationProjectPath);
