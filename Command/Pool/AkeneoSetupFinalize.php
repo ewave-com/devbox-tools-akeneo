@@ -32,7 +32,7 @@ class AkeneoSetupFinalize extends CommandAbstract
         $io = new SymfonyStyle($input, $output);
         $this->commandTitle($io, 'Finalization');
 
-        $projectPath = EnvConfig::getValue('WEBSITE_DOCUMENT_ROOT');
+        $projectPath = EnvConfig::getValue('WEBSITE_APPLICATION_ROOT') ?: EnvConfig::getValue('WEBSITE_DOCUMENT_ROOT');
 
         $headers = ['Parameter', 'Value'];
         $rows = [

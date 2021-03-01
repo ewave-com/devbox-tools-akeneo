@@ -72,7 +72,7 @@ abstract class AbstractAkeneoSetupElastic extends CommandAbstract
      */
     protected function installElasticsearchDump(SymfonyStyle $io, OutputInterface $output = null)
     {
-        $projectPath = EnvConfig::getValue('WEBSITE_DOCUMENT_ROOT');
+        $projectPath = EnvConfig::getValue('WEBSITE_APPLICATION_ROOT') ?: EnvConfig::getValue('WEBSITE_DOCUMENT_ROOT');
 
         $sourceType = JsonConfig::getConfig('sources->es->source_type');
         $source = JsonConfig::getConfig('sources->es->source_path');
@@ -243,7 +243,7 @@ abstract class AbstractAkeneoSetupElastic extends CommandAbstract
      */
     protected function executeElasticsearchReindexCommands(SymfonyStyle $io, OutputInterface $output = null)
     {
-        $projectPath = EnvConfig::getValue('WEBSITE_DOCUMENT_ROOT');
+        $projectPath = EnvConfig::getValue('WEBSITE_APPLICATION_ROOT') ?: EnvConfig::getValue('WEBSITE_DOCUMENT_ROOT');
 
         try {
             $this->executeCommands(
