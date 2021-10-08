@@ -35,7 +35,7 @@ class Akeneo2SetupElastic extends AbstractAkeneoSetupElastic
 
     protected function executeElasticsearchReindexCommands(SymfonyStyle $io, OutputInterface $output = null)
     {
-        $projectPath = EnvConfig::getValue('WEBSITE_DOCUMENT_ROOT');
+        $projectPath = EnvConfig::getValue('WEBSITE_APPLICATION_ROOT') ?: EnvConfig::getValue('WEBSITE_DOCUMENT_ROOT');
 
         try {
             $this->executeCommands(
