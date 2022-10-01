@@ -34,8 +34,8 @@ abstract class AbstractAkeneoActions extends CoreActionsAbstract
     {
         parent::beforeExecute($input, $output, $io);
 
-        if ($this->getJoke()) {
-            $io->block($this->getJoke());
+        if ($joke = $this->getJoke()) {
+            $io->block($joke);
         }
     }
 
@@ -47,7 +47,7 @@ abstract class AbstractAkeneoActions extends CoreActionsAbstract
         try {
             $ans = @file_get_contents('https://api.chucknorris.io/jokes/random', 0, stream_context_create(["http"=>["timeout"=>0.5]]));
             $ansO = json_decode($ans);
-            if ($ansO && (!empty($ansO->value))) {
+            if (null !== $ans && (!empty($ansO->value))) {
                 return $ansO->value;
             }
         } catch (\Exception $e) {
